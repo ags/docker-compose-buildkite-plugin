@@ -273,6 +273,9 @@ fi
 
 if [[ -n "${BUILDKITE_AGENT_ACCESS_TOKEN:-}" ]] ; then
   if [[ "$(plugin_read_config CHECK_LINKED_CONTAINERS "true")" != "false" ]] ; then
+    echo "+++ containers" 
+    docker_ps_by_project -q
+    echo "+++ done containers"
 
     # Get list of failed containers
     failed_containers=($(
