@@ -273,17 +273,18 @@ fi
 
 if [[ -n "${BUILDKITE_AGENT_ACCESS_TOKEN:-}" ]] ; then
   if [[ "$(plugin_read_config CHECK_LINKED_CONTAINERS "true")" != "false" ]] ; then
+    if [[ "$(plugin_read_config RM)" == "false" ]] ; then
+      # Get list of failed containers
+      failed_containers=($(
+        docker inspect -f '{{if ne 0 .State.ExitCode}}{{.Name}}.{{.State.ExitCode}}{{ end }}' \
+        $(docker_ps_by_project -q)
+      ))
 
-    # Get list of failed containers
-    failed_containers=($(
-      docker inspect -f '{{if ne 0 .State.ExitCode}}{{.Name}}.{{.State.ExitCode}}{{ end }}' \
-      $(docker_ps_by_project -q)
-    ))
-
-    if [[ 0 != "${#failed_containers[@]}" ]] ; then
-      echo "+++ :warning: Some containers had non-zero exit codes"
-      docker_ps_by_project \
-        --format 'table {{.Label "com.docker.compose.service"}}\t{{ .ID }}\t{{ .Status }}'
+      if [[ 0 != "${#failed_containers[@]}" ]] ; then
+        echo "+++ :warning: Some containers had non-zero exit codes"
+        docker_ps_by_project \
+          --format 'table {{.Label "com.docker.compose.service"}}\t{{ .ID }}\t{{ .Status }}'
+      fi
     fi
 
     check_linked_containers_and_save_logs "$run_service" "docker-compose-logs"
