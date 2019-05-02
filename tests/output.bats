@@ -24,13 +24,13 @@ load '../lib/run'
 
 
   stub buildkite-agent \
-    "meta-data get docker-compose-plugin-built-image-tag-myservice : exit 1" \
+    "meta-data exists docker-compose-plugin-built-image-tag-myservice : exit 1" \
     "artifact upload : exit 0"
 
   stub docker-compose \
     "-f docker-compose.yml -p buildkite1111 build --pull myservice : echo built myservice" \
     "-f docker-compose.yml -p buildkite1111 up -d --scale myservice=0 : echo ran myservice dependencies" \
-    "-f docker-compose.yml -p buildkite1111 run --name buildkite1111_myservice_build_1 myservice echo 'hello world' : echo ran myservice"
+    "-f docker-compose.yml -p buildkite1111 run --name buildkite1111_myservice_build_1 --rm myservice echo 'hello world' : echo ran myservice"
 
   stub docker \
     "ps -a --filter label=com.docker.compose.project=buildkite1111 -q : echo 123123" \
@@ -66,12 +66,12 @@ load '../lib/run'
 
 
   stub buildkite-agent \
-    "meta-data get docker-compose-plugin-built-image-tag-myservice : exit 1" \
+    "meta-data exists docker-compose-plugin-built-image-tag-myservice : exit 1"
 
   stub docker-compose \
     "-f docker-compose.yml -p buildkite1111 build --pull myservice : echo built myservice" \
     "-f docker-compose.yml -p buildkite1111 up -d --scale myservice=0 : echo ran myservice dependencies" \
-    "-f docker-compose.yml -p buildkite1111 run --name buildkite1111_myservice_build_1 myservice echo 'hello world' : echo ran myservice"
+    "-f docker-compose.yml -p buildkite1111 run --name buildkite1111_myservice_build_1 --rm myservice echo 'hello world' : echo ran myservice"
 
   stub docker \
     "ps -a --filter label=com.docker.compose.project=buildkite1111 -q : echo 123123" \
